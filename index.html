@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>questGDrive</title>
+		<link rel="shortcut icon" href="images/logo2.png"/>
+		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+		<style type="text/css">
+			body {
+				padding: 10px;
+			}
+			[v-cloak] { display: none; }
+			div.highlight {
+				display: inline;
+				box-shadow: 0 0 0.5em red;
+				padding: 0.125em;
+				border-radius: 0.5em;
+			}
+			.btn {
+				background-image: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0.2) 49%, rgba(0,0,0,0.15) 51%, rgba(0,0,0,0.05));
+				background-repeat: repeat-x;
+			}
+		</style>
+
+		<!-- The core Firebase JS SDK is always required and must be listed first -->
+		<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase.js"></script>
+
+		<!-- TODO: Add SDKs for Firebase products that you want to use
+		https://firebase.google.com/docs/web/setup#available-libraries -->
+		<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-analytics.js"></script>
+		
+		<link rel="stylesheet" href="css/css.css">
+		<link rel="stylesheet" href="css/fonts.css">
+		<script src="js/vue.js"></script>
+		<script src="js/log.js"></script>
+		<script src="js/poster.js"></script>
+		<script>
+			function load() {
+				beforelog();
+				posterSlide();
+			}
+		</script>
+
+	</head>
+
+
+	<body onload="load()">
+		<header style="text-align: center;">
+			<input type="image" src="images/logo1.png" class="headlogol"> <input type="image" src="images/name1.png" class="headpic"> <input type="image" src="images/logo1.png" class="headlogor" style="transform: scaleX(-1)";>
+		</header>
+
+
+		<div>
+			<div id="logindiv" class="heading" style="display: inline-block; width: 35%; text-align: center; vertical-align: top;">
+				<div id="user">
+				</div>
+				<button class="button" id="loginbut" onclick="GoogleLogIn()" style="display: inline-block; width: 40%; font-size: 24px;"> LOG IN</button>
+			</div>
+
+			<div style="display: inline-block; width: 35%; text-align: center;">
+				<p class="heading"> questGDrive </p>
+				<br>
+				<p class="name"> - by &emsp; Ashul &ensp; Gupta</p>
+			</div>
+
+			<div id="logoutdiv" style="display: inline-block; width: 20%; text-align: center;">
+				<button class="button" id="logoutbut" onclick="GoogleLogOut()" style="font-size: 24px;"> LOG OUT</button>
+			</div>
+
+		</div>
+
+
+		<div id="vueSearch" style="width: 55%; display: none;" v-cloak>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="txtQuery" style="font-size: 20px; font-weight: bold; color: #000000;">Search here ➛</label>
+				</div>
+				<input type="text" id="txtQuery" v-model="search" class="form-control" placeholder="What are you looking for.......">
+			</div>
+			<br>
+			<div>
+				<div style="display: inline-block; text-align: left;">
+					<div v-for="(link, linkIndex) in results" v-bind:style="linkIndex + 1 < results.length ? 'margin-bottom: 1em;' : ''">
+						<div style="font-size: 1.25em; color: #008000;"><a v-bind:href="link.url" target="_blank" v-html="link.title"></a></div>
+							<div style="color: #ffffff;" v-html="link.description"></div>
+								<div style="color: #008000;">{{ link.url }}</div>
+					</div>
+				</div>
+
+			</div>
+			<div style="text-align: left;">
+				<div v-if="error" class="alert alert-danger text-center lead" v-html="error.replace(/`([^`]+)`/g, '<code>$1</code>')">{{error}}</div>
+					<div v-else-if="loading" class="text-center lead" style="color: #ffffff; text-align: left;">Loading search results from Google Sheets.......</div>
+						<div v-else-if="!results.length" class="text-center lead" style="color: #ffffff;">No results were found for <code>{{ search }}</code></div>
+			</div>
+			<br>
+			<div class="text-center">
+				<div class="d-inline-block">
+					<div class="input-group mb-3" v-if="pages.length">
+						<div class="input-group-prepend">
+							<span class="input-group-text" for="txtQuery">Pages</span>
+						</div>
+						<div class="input-group-append">
+							<button v-for="page in pages" v-bind:class="'btn btn-outline-secondary' + (page.number == pageNumber ? ' active' : '')" type="button" style="float: initial; color: #ffffff;" v-on:click="changePage(page.number)" v-bind:title="page.caption">{{ page.text }}</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="slideshow" class="name" style="width: 35%; text-align: center; display: inline-block; vertical-align: top;"></div>
+		<br>
+
+		
+		<!--Google form and QR codes-->
+
+		<div style="text-align: center; width: 45%; display: inline-block;">
+			<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeLwlz7-AfPg9NjyxYxsiJGYtXmQ5EHoIVQxqGHeYWRfQPU7g/viewform?embedded=true" width="480" height="640" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+		</div> 
+
+		<div style="display: inline-block; width: 45%; text-align: center; vertical-align: top;">
+			<p style="color: #ffffff; font-size: 32px;">Donate via</p>
+			<input type="image" src="images/paytm.png" class="pay">
+			<br><br>
+			<input type="image" src="images/gpay.png" class="pay"> 
+		</div>
+
+		<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5eea359db14a8cb7"></script>
+		<script>
+			beforelog();
+		</script>
+
+	</body>
+</html>
