@@ -95,7 +95,8 @@ $(function() {
 					return {
 						title: self.markTerms(link.title, searchTerms),
 						description: self.markTerms(link.description, searchTerms),
-						url: link.url
+						url: link.url,
+						keywords: link.keywords
 					};
 				});
 			},

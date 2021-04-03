@@ -86,8 +86,9 @@
 				<div style="display: inline-block; text-align: left;">
 					<div v-for="(link, linkIndex) in results" v-bind:style="linkIndex + 1 < results.length ? 'margin-bottom: 1em;' : ''">
 						<div style="font-size: 1.25em; color: #008000;"><a v-bind:href="link.url" target="_blank" v-html="link.title"></a></div>
-							<div style="color: #ffffff;" v-html="link.description"></div>
-								<div style="color: #008000;">{{ link.url }}</div>
+						<div style="color: #ffffff;" v-html="link.description"></div>
+						<div style="color: #ffffff;" v-html="link.keywords"></div>
+						<div style="color: #008000;">{{ link.url }}</div>
 					</div>
 				</div>
 
